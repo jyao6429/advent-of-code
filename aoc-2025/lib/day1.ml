@@ -31,7 +31,7 @@ let%expect_test "puzzle 1 - example" =
   [%expect {| 3 |}]
 ;;
 
-(* let%expect_test "puzzle 1 - input" =
+let%expect_test "puzzle 1 - input" =
   let lines =
     In_channel.read_lines
       "/home/jyao6429/oxcaml/advent-of-code/aoc-2025/resources/day1.txt"
@@ -39,7 +39,7 @@ let%expect_test "puzzle 1 - example" =
   let count = puzzle_1 lines in
   Printf.printf "%d\n" count;
   [%expect {| 1089 |}]
-;; *)
+;;
 
 let puzzle_2 lines =
   let operations = get_operations lines in
