@@ -41,7 +41,7 @@ let%expect_test "puzzle 1 - input" =
 
 let rec check_invalid n str num_chars =
   let len = String.length str in
-  match num_chars = len, len % num_chars with
+  match num_chars > len / 2, len % num_chars with
   | true, _ -> 0
   | false, 0 ->
     let segment = String.subo str ~len:num_chars in
