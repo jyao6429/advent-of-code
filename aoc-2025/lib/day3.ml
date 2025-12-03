@@ -40,38 +40,38 @@ let%expect_test "puzzle 1 - input" =
 ;;
 
 let num_to_turn_on = 12
+let digit_order = List.init 10 ~f:Fn.id |> List.rev
 
-let rec max_joltage_multi' bank memo ~num_turned_on ~idx ~acc =
-  if num_turned_on = num_to_turn_on
-  then List.rev acc |> List.fold ~init:0 ~f:(fun acc d -> (acc * 10) + d)
-  else if idx >= Array.length bank
-  then 0
-  else if memo.(num_turned_on).(idx) <> 0
-  then memo.(num_turned_on).(idx)
-  else (
-    let curr = bank.(idx) in
-    let with_curr =
-      max_joltage_multi'
-        bank
-        memo
-        ~num_turned_on:(num_turned_on + 1)
-        ~idx:(idx + 1)
-        ~acc:(curr :: acc)
+let find_next_digit bank_len index_map ~idx ~digit =
+  List.find_map_exn digit_order ~f:(fun d ->
+    let%bind.Option indices = Map.find index_map d in
+    let%bind.Option next_idx =
+      Set.binary_search indices ~compare `First_greater_than_or_equal_to idx
     in
-    let without_curr = max_joltage_multi' bank memo ~num_turned_on ~idx:(idx + 1) ~acc in
-    let best = max with_curr without_curr in
-    memo.(num_turned_on).(idx) <- best;
-    best)
+    if bank_len - (num_to_turn_on - digit) < next_idx
+    then None
+    else Some (~next_digit:d, ~next_idx:(next_idx + 1)))
 ;;
 
 let max_joltage_multi bank =
-  let bank = List.to_array bank in
-  let len = Array.length bank in
-  let memo = Array.init num_to_turn_on ~f:(fun _ -> Array.create ~len 0) in
-  let best = max_joltage_multi' bank memo ~num_turned_on:0 ~idx:0 ~acc:[] in
-  memo |> [%sexp_of: int array array] |> print_s;
-  Common.print_int best;
-  best
+  let bank_len = List.length bank in
+  let index_map =
+    List.foldi
+      bank
+      ~init:(Map.empty (module Int))
+      ~f:(fun i acc d ->
+        Map.update acc d ~f:(function
+          | None -> Set.singleton (module Int) i
+          | Some indices -> Set.add indices i))
+  in
+  let ~number, ~idx:_ =
+    List.init num_to_turn_on ~f:Fn.id
+    |> List.fold ~init:(~number:0, ~idx:0) ~f:(fun (~number, ~idx) digit ->
+      let ~next_digit, ~next_idx = find_next_digit bank_len index_map ~idx ~digit in
+      let number = (number * 10) + next_digit in
+      ~number, ~idx:next_idx)
+  in
+  number
 ;;
 
 let puzzle_2 input =
@@ -85,11 +85,11 @@ let%expect_test "puzzle 2 - example" =
   let input = {| **REMOVED** |} in
   let lines = String.split_lines (String.strip input) in
   puzzle_2 lines |> Common.print_int;
-  [%expect {| 2065786182157 |}]
+  [%expect {| 3121910778619 |}]
 ;;
 
-(* let%expect_test "puzzle 2 - input" =
+let%expect_test "puzzle 2 - input" =
   let input = Common.read_lines "day3.txt" in
   puzzle_2 input |> Common.print_int;
-  [%expect {| 16993 |}]
-;; *)
+  [%expect {| 168617068915447 |}]
+;;
