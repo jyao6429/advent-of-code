@@ -24,8 +24,7 @@ let puzzle_1 lines =
 ;;
 
 let%expect_test "puzzle 1 - example" =
-  let lines = {| **REMOVED** |}
-  in
+  let lines = {| **REMOVED** |} in
   let lines = String.split_lines (String.strip lines) in
   let count = puzzle_1 lines in
   Printf.printf "%d\n" count;
@@ -68,8 +67,7 @@ let puzzle_2 lines =
 ;;
 
 let%expect_test "puzzle 2 - example" =
-  let lines = {| **REMOVED** |}
-  in
+  let lines = {| **REMOVED** |} in
   let lines = String.split_lines (String.strip lines) in
   let count = puzzle_2 lines in
   Printf.printf "%d\n" count;
