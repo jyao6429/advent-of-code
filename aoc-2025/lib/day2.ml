@@ -39,17 +39,16 @@ let%expect_test "puzzle 1 - input" =
   [%expect {| 29940924880 |}]
 ;;
 
-let rec check_invalid n str num_chars =
-  let len = String.length str in
-  match num_chars > len / 2, len % num_chars with
-  | true, _ -> 0
-  | false, 0 ->
-    let segment = String.subo str ~len:num_chars in
-    let reconstructed =
-      String.init len ~f:(fun i -> String.get segment (i mod num_chars))
-    in
-    if String.equal str reconstructed then n else check_invalid n str (num_chars + 1)
-  | false, _ -> check_invalid n str (num_chars + 1)
+let check_invalid n =
+  let n_str = Int.to_string n in
+  let n_len = String.length n_str in
+  let repeat_lens_to_check =
+    List.range ~stop:`inclusive 1 (n_len / 2) |> List.filter ~f:(fun l -> n_len % l = 0)
+  in
+  List.exists repeat_lens_to_check ~f:(fun l ->
+    let to_repeat = String.subo n_str ~len:l in
+    let repeated = String.init n_len ~f:(fun i -> String.get to_repeat (i mod l)) in
+    String.equal n_str repeated)
 ;;
 
 let puzzle_2 input =
@@ -60,17 +59,12 @@ let puzzle_2 input =
       | [ start_str; end_str ] -> Int.of_string start_str, Int.of_string end_str
       | _ -> failwith "Invalid range format")
   in
-  let sum =
-    List.fold ranges ~init:0 ~f:(fun sum (first, last) ->
-      let sum_ref = ref 0 in
-      for i = first to last do
-        let str = Int.to_string i in
-        let res = check_invalid i str 1 in
-        sum_ref := !sum_ref + res
-      done;
-      sum + !sum_ref)
+  let to_check =
+    List.concat_map ranges ~f:(fun (first, last) ->
+      List.range ~stop:`inclusive first last)
   in
-  sum
+  let invalid = List.filter to_check ~f:check_invalid in
+  List.sum (module Int) invalid ~f:Fn.id
 ;;
 
 let%expect_test "puzzle 2 - example" =
