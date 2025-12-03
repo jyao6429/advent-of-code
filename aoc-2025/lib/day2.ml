@@ -32,9 +32,7 @@ let%expect_test "puzzle 1 - example" =
 ;;
 
 let%expect_test "puzzle 1 - input" =
-  let input =
-    In_channel.read_all "/home/jyao6429/oxcaml/advent-of-code/aoc-2025/resources/day2.txt"
-  in
+  let input = Common.read_all "day2.txt" in
   puzzle_1 input |> Common.print_int;
   [%expect {| 29940924880 |}]
 ;;
