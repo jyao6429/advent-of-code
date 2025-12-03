@@ -27,7 +27,7 @@ let puzzle_1 input =
 let%expect_test "puzzle 1 - example" =
   let input = {| **REMOVED** |}
   in
-  puzzle_1 input |> Printf.printf "%d\n";
+  puzzle_1 input |> Common.print_int;
   [%expect {| 1227775554 |}]
 ;;
 
@@ -35,7 +35,7 @@ let%expect_test "puzzle 1 - input" =
   let input =
     In_channel.read_all "/home/jyao6429/oxcaml/advent-of-code/aoc-2025/resources/day2.txt"
   in
-  puzzle_1 input |> Printf.printf "%d\n";
+  puzzle_1 input |> Common.print_int;
   [%expect {| 29940924880 |}]
 ;;
 
@@ -76,14 +76,12 @@ let puzzle_2 input =
 let%expect_test "puzzle 2 - example" =
   let input = {| **REMOVED** |}
   in
-  puzzle_2 input |> Printf.printf "%d\n";
+  puzzle_2 input |> Common.print_int;
   [%expect {| 4174379265 |}]
 ;;
 
 let%expect_test "puzzle 2 - input" =
-  let input =
-    In_channel.read_all "/home/jyao6429/oxcaml/advent-of-code/aoc-2025/resources/day2.txt"
-  in
-  puzzle_2 input |> Printf.printf "%d\n";
+  let input = Common.read_all "day2.txt" in
+  puzzle_2 input |> Common.print_int;
   [%expect {| 48631958998 |}]
 ;;

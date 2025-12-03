@@ -26,18 +26,13 @@ let puzzle_1 lines =
 let%expect_test "puzzle 1 - example" =
   let lines = {| **REMOVED** |} in
   let lines = String.split_lines (String.strip lines) in
-  let count = puzzle_1 lines in
-  Printf.printf "%d\n" count;
+  puzzle_1 lines |> Common.print_int;
   [%expect {| 3 |}]
 ;;
 
 let%expect_test "puzzle 1 - input" =
-  let lines =
-    In_channel.read_lines
-      "/home/jyao6429/oxcaml/advent-of-code/aoc-2025/resources/day1.txt"
-  in
-  let count = puzzle_1 lines in
-  Printf.printf "%d\n" count;
+  let lines = Common.read_lines "day1.txt" in
+  puzzle_1 lines |> Common.print_int;
   [%expect {| 1089 |}]
 ;;
 
@@ -53,14 +48,6 @@ let puzzle_2 lines =
       in
       let pos = (new_unmodded_pos + modulo) mod modulo in
       let count = count + full_rotations + Bool.to_int should_add_additional in
-      (* print_s
-        [%message
-          (op : int)
-            (new_unmodded_pos : int)
-            (pos : int)
-            (should_add_additional : bool)
-            (full_rotations : int)
-            (count : int)]; *)
       ~pos, ~count)
   in
   count
@@ -69,17 +56,12 @@ let puzzle_2 lines =
 let%expect_test "puzzle 2 - example" =
   let lines = {| **REMOVED** |} in
   let lines = String.split_lines (String.strip lines) in
-  let count = puzzle_2 lines in
-  Printf.printf "%d\n" count;
+  puzzle_2 lines |> Common.print_int;
   [%expect {| 6 |}]
 ;;
 
 let%expect_test "puzzle 2 - input" =
-  let lines =
-    In_channel.read_lines
-      "/home/jyao6429/oxcaml/advent-of-code/aoc-2025/resources/day1.txt"
-  in
-  let count = puzzle_2 lines in
-  Printf.printf "%d\n" count;
+  let lines = Common.read_lines "day1.txt" in
+  puzzle_2 lines |> Common.print_int;
   [%expect {| 6530 |}]
 ;;
