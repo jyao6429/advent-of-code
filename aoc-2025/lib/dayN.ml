@@ -1,8 +1,11 @@
 open! Core
 
-let example_input = Common.read_lines (day ^ "_example.txt")
+let day = "dayN"
+let process_input input = input
 
-let prod_input = Common.read_lines "dayN.txt"
+let example_input = Common.read_lines (day ^ "_example.txt") |> process_input
+
+let prod_input = Common.read_lines (day ^ ".txt") |> process_input
 
 module Part_1 = struct
   let solve input =
