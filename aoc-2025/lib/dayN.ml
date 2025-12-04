@@ -2,7 +2,7 @@ open! Core
 
 let example_input = Common.read_lines (day ^ "_example.txt")
 
-let prod_input = Common.read_lines "day4.txt"
+let prod_input = Common.read_lines "dayN.txt"
 
 module Part_1 = struct
   let solve input =
