@@ -117,22 +117,55 @@ module Part_2 = struct
 
   let solve (par @ local) (grid : Cell.t iarray iarray) =
     let grid = Parray.of_iarray grid in
-    let accessible =
-      Parray.mapi par grid ~f:(fun i row ->
-        Iarray.counti row ~f:(fun j cell -> check_adjacent grid cell ~i ~j))
+    let step (grid : Cell.t iarray Parray.t) =
+      let still_accessible =
+        Parray.mapi par grid ~f:(fun i row ->
+          Iarray.fold_mapi ~init:0 row ~f:(fun j acc cell ->
+            if check_adjacent grid cell ~i ~j then acc + 1, Cell.Empty else acc, cell))
+      in
+      let new_grid = Parray.map par still_accessible ~f:snd in
+      let num_accessible =
+        Parray.map par still_accessible ~f:fst
+        |> Parray.fold par ~init:(fun () -> 0) ~f:( + ) ~combine:( + )
+      in
+      ~new_grid, ~num_accessible
     in
-    Parray.fold par accessible ~init:(fun () -> 0) ~f:( + ) ~combine:( + )
+    let rec loop (grid : Cell.t iarray Parray.t) ~total_accessible =
+      let ~new_grid, ~num_accessible = step grid in
+      let total_accessible = total_accessible + num_accessible in
+      if num_accessible = 0 then total_accessible else loop new_grid ~total_accessible
+    in
+    loop grid ~total_accessible:0 [@nontail]
   ;;
 
   module%test [@name "part_2"] _ = struct
     let%expect_test "example" =
       Common.run_in_parallel ~f:(fun par -> solve par example_input) |> Common.print_int;
-      [%expect {| 13 |}]
+      [%expect {| 43 |}]
     ;;
 
-    let%expect_test "prod" =
-      Common.run_in_parallel ~f:(fun par -> solve par prod_input) |> Common.print_int;
-      [%expect {| 1464 |}]
+    let%expect_test "prod - parallel" =
+      let start_time = Time_ns.now () in
+      let res = Common.run_in_parallel ~f:(fun par -> solve par prod_input) in
+      let end_time = Time_ns.now () in
+      let duration =
+        Time_ns.diff end_time start_time
+        |> Time_ns.Span.round_nearest ~to_multiple_of:(Time_ns.Span.of_int_ms 10)
+      in
+      print_s [%message (res : int) (duration : Time_ns.Span.t)];
+      [%expect {| ((res 8409) (duration 90ms)) |}]
+    ;;
+
+    let%expect_test "prod - sequential" =
+      let start_time = Time_ns.now () in
+      let res = Common.run_sequentially ~f:(fun par -> solve par prod_input) in
+      let end_time = Time_ns.now () in
+      let duration =
+        Time_ns.diff end_time start_time
+        |> Time_ns.Span.round_nearest ~to_multiple_of:(Time_ns.Span.of_int_ms 10)
+      in
+      print_s [%message (res : int) (duration : Time_ns.Span.t)];
+      [%expect {| ((res 8409) (duration 30ms)) |}]
     ;;
   end
 end

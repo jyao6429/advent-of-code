@@ -14,3 +14,11 @@ let run_in_parallel ~(f : Parallel.t @ local -> 'a) : 'a =
   Scheduler.stop scheduler;
   result
 ;;
+
+let run_sequentially ~(f : Parallel.t @ local -> 'a) : 'a =
+  let module Scheduler = Parallel.Scheduler.Sequential in
+  let scheduler = Scheduler.create () in
+  let result = Scheduler.parallel scheduler ~f in
+  Scheduler.stop scheduler;
+  result
+;;
