@@ -2,6 +2,6 @@
  (public_name aoc-2025)
  (name aoc_2025)
  (inline_tests)
- (libraries core)
+ (libraries core parallel parallel.scheduler.work_stealing)
  (preprocess
   (pps ppx_jane ppx_inline_test)))
