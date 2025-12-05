@@ -150,10 +150,10 @@ module Part_2 = struct
       let end_time = Time_ns.now () in
       let duration =
         Time_ns.diff end_time start_time
-        |> Time_ns.Span.round_nearest ~to_multiple_of:(Time_ns.Span.of_int_ms 10)
+        |> Time_ns.Span.round_nearest ~to_multiple_of:(Time_ns.Span.of_int_ms 20)
       in
       print_s [%message (res : int) (duration : Time_ns.Span.t)];
-      [%expect {| ((res 8409) (duration 90ms)) |}]
+      [%expect {| ((res 8409) (duration 100ms)) |}]
     ;;
 
     let%expect_test "prod - sequential" =
@@ -162,10 +162,10 @@ module Part_2 = struct
       let end_time = Time_ns.now () in
       let duration =
         Time_ns.diff end_time start_time
-        |> Time_ns.Span.round_nearest ~to_multiple_of:(Time_ns.Span.of_int_ms 10)
+        |> Time_ns.Span.round_nearest ~to_multiple_of:(Time_ns.Span.of_int_ms 20)
       in
       print_s [%message (res : int) (duration : Time_ns.Span.t)];
-      [%expect {| ((res 8409) (duration 30ms)) |}]
+      [%expect {| ((res 8409) (duration 40ms)) |}]
     ;;
   end
 end
