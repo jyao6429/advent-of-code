@@ -25,8 +25,8 @@ module Cell = struct
 end
 
 let process_input input =
-  List.to_array input
-  |> Array.map ~f:(fun line -> String.to_array line |> Array.map ~f:Cell.t_of_char)
+  input |> Iarray.of_list_map 
+   ~f:(fun line -> String.to_sequence line |> Iarray.of_sequence |> Iarray.map ~f:Cell.t_of_char)
 ;;
 
 let example_input = example_input |> process_input
@@ -50,10 +50,10 @@ module Part_1 = struct
         List.count x_y_offsets ~f:(fun (dx, dy) ->
           let i = i + dx in
           let j = j + dy in
-          if i < 0 || j < 0 || i >= Array.length grid || j >= Array.length grid.(0)
+          if i < 0 || j < 0 || i >= Iarray.length grid || j >= Iarray.length grid.:(0)
           then false
           else (
-            match grid.(i).(j) with
+            match grid.:(i).:(j) with
             | Cell.Empty -> false
             | Roll -> true))
       in
@@ -62,10 +62,10 @@ module Part_1 = struct
 
   let solve grid =
     let accessible =
-      Array.mapi grid ~f:(fun i row ->
-        Array.counti row ~f:(fun j cell -> check_adjacent grid cell ~i ~j))
+      Iarray.mapi grid ~f:(fun i row ->
+        Iarray.counti row ~f:(fun j cell -> check_adjacent grid cell ~i ~j))
     in
-    Array.sum (module Int) accessible ~f:Fn.id
+    Iarray.sum (module Int) accessible ~f:Fn.id
   ;;
 
   module%test [@name "part_1"] _ = struct
@@ -82,20 +82,23 @@ module Part_1 = struct
 end
 
 module Part_2 = struct
-  let solve input =
-    ignore input;
-    0
+let solve grid =
+    let accessible =
+      Iarray.mapi grid ~f:(fun i row ->
+        Iarray.counti row ~f:(fun j cell -> Part_1.check_adjacent grid cell ~i ~j))
+    in
+    Iarray.sum (module Int) accessible ~f:Fn.id
   ;;
 
   module%test [@name "part_2"] _ = struct
     let%expect_test "example" =
       solve example_input |> Common.print_int;
-      [%expect {| 0 |}]
+      [%expect {| 13 |}]
     ;;
 
     let%expect_test "prod" =
       solve prod_input |> Common.print_int;
-      [%expect {| 0 |}]
+      [%expect {| 1464 |}]
     ;;
   end
 end
