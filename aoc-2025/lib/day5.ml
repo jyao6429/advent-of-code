@@ -10,6 +10,7 @@ let process_input input =
   let fresh_ranges, ingredients =
     List.split_while input ~f:(fun line -> not (String.is_empty line))
   in
+  let ingredients = List.tl_exn ingredients |> List.map ~f:Int.of_string in
   let fresh_increments =
     List.concat_map fresh_ranges ~f:(fun range ->
       let range = String.split range ~on:'-' |> List.map ~f:Int.of_string in
@@ -25,7 +26,6 @@ let process_input input =
       acc, (pos, acc))
     |> Map.of_alist_exn (module Int)
   in
-  let ingredients = List.tl_exn ingredients |> List.map ~f:Int.of_string in
   ~fresh_map, ~ingredients
 ;;
 
