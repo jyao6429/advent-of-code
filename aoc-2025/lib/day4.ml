@@ -148,24 +148,18 @@ module Part_2 = struct
       let start_time = Time_ns.now () in
       let res = Common.run_in_parallel ~f:(fun par -> solve par prod_input) in
       let end_time = Time_ns.now () in
-      let duration =
-        Time_ns.diff end_time start_time
-        |> Time_ns.Span.round_nearest ~to_multiple_of:(Time_ns.Span.of_int_ms 20)
-      in
-      print_s [%message (res : int) (duration : Time_ns.Span.t)];
-      [%expect {| ((res 8409) (duration 100ms)) |}]
+      let _duration = Time_ns.diff end_time start_time in
+      print_s [%message (res : int)];
+      [%expect {| (res 8409) |}]
     ;;
 
     let%expect_test "prod - sequential" =
       let start_time = Time_ns.now () in
       let res = Common.run_sequentially ~f:(fun par -> solve par prod_input) in
       let end_time = Time_ns.now () in
-      let duration =
-        Time_ns.diff end_time start_time
-        |> Time_ns.Span.round_nearest ~to_multiple_of:(Time_ns.Span.of_int_ms 20)
-      in
-      print_s [%message (res : int) (duration : Time_ns.Span.t)];
-      [%expect {| ((res 8409) (duration 40ms)) |}]
+      let _duration = Time_ns.diff end_time start_time in
+      print_s [%message (res : int)];
+      [%expect {| (res 8409) |}]
     ;;
   end
 end
