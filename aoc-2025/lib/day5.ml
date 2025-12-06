@@ -57,20 +57,32 @@ module Part_1 = struct
 end
 
 module Part_2 = struct
-  let solve input =
-    ignore input;
-    0
+  let solve (~fresh_map, ~ingredients:_) =
+    let ~count, ~last_interval_start:_ =
+      Map.fold
+        fresh_map
+        ~init:(~count:0, ~last_interval_start:Null)
+        ~f:(fun ~key:index ~data:num (~count, ~last_interval_start) ->
+          match last_interval_start, num with
+          | This start, 0 -> ~count:(count + (index - start)), ~last_interval_start:Null
+          | This _, _ -> ~count, ~last_interval_start
+          | Null, 0 -> failwith "impossible"
+          | Null, num ->
+            assert (num > 0);
+            ~count, ~last_interval_start:(This index))
+    in
+    count
   ;;
 
   module%test [@name "part_2"] _ = struct
     let%expect_test "example" =
       solve example_input |> Common.print_int;
-      [%expect {| 0 |}]
+      [%expect {| 14 |}]
     ;;
 
     let%expect_test "prod" =
       solve prod_input |> Common.print_int;
-      [%expect {| 0 |}]
+      [%expect {| 350684792662845 |}]
     ;;
   end
 end
