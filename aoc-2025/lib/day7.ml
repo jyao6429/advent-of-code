@@ -35,21 +35,21 @@ let process_input input =
     List.map input ~f:(fun line ->
       String.to_sequence line |> Iarray.of_sequence |> Iarray.map ~f:Cell.t_of_char)
   in
-  grid
+  let start, grid = List.split_n grid 1 in
+  let start = List.hd_exn start in
+  let start_idx =
+    Iarray.findi start ~f:(fun _ cell -> Cell.equal cell Cell.Start)
+    |> Option.value_exn
+    |> fst
+  in
+  ~start_idx, ~grid
 ;;
 
 let example_input = example_input |> process_input
 let prod_input = prod_input |> process_input
 
 module Part_1 = struct
-  let solve (input : Cell.t iarray list) =
-    let start, grid = List.split_n input 1 in
-    let start = List.hd_exn start in
-    let start_idx =
-      Iarray.findi start ~f:(fun _ cell -> Cell.equal cell Cell.Start)
-      |> Option.value_exn
-      |> fst
-    in
+  let solve (~start_idx, ~grid) =
     let ~beams:_, ~num_splits =
       List.fold
         grid
@@ -60,10 +60,8 @@ module Part_1 = struct
           in
           let new_beams =
             Set.fold split ~init:remaining ~f:(fun acc idx ->
-              let acc = if idx > 0 then Set.add acc (idx - 1) else acc in
-              let acc =
-                if idx < Iarray.length start - 1 then Set.add acc (idx + 1) else acc
-              in
+              let acc = Set.add acc (idx - 1) in
+              let acc = Set.add acc (idx + 1) in
               acc)
           in
           ~beams:new_beams, ~num_splits:(num_splits + Set.length split))
@@ -85,14 +83,7 @@ module Part_1 = struct
 end
 
 module Part_2 = struct
-  let solve input =
-    let start, grid = List.split_n input 1 in
-    let start = List.hd_exn start in
-    let start_idx =
-      Iarray.findi start ~f:(fun _ cell -> Cell.equal cell Cell.Start)
-      |> Option.value_exn
-      |> fst
-    in
+  let solve (~start_idx, ~grid) =
     let timelines =
       List.fold
         grid
