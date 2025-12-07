@@ -1,10 +1,7 @@
 open! Core
 
 let day = "day6"
-
 let example_input = Common.read_lines (day ^ "_example.txt")
-;;
-
 let prod_input = Common.read_lines (day ^ ".txt")
 
 module Part_1 = struct

@@ -27,8 +27,7 @@ let puzzle_1 input =
 ;;
 
 let%expect_test "puzzle 1 - example" =
-  let input = {| **REMOVED** |} in
-  let lines = String.split_lines (String.strip input) in
+  let lines = Common.read_lines "day3_example.txt" in
   puzzle_1 lines |> Common.print_int;
   [%expect {| 357 |}]
 ;;
@@ -82,8 +81,7 @@ let puzzle_2 input =
 ;;
 
 let%expect_test "puzzle 2 - example" =
-  let input = {| **REMOVED** |} in
-  let lines = String.split_lines (String.strip input) in
+  let lines = Common.read_lines "day3_example.txt" in
   puzzle_2 lines |> Common.print_int;
   [%expect {| 3121910778619 |}]
 ;;

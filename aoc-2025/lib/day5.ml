@@ -1,9 +1,7 @@
 open! Core
 
 let day = "day5"
-
 let example_input = Common.read_lines (day ^ "_example.txt")
-
 let prod_input = Common.read_lines (day ^ ".txt")
 
 let process_input input =

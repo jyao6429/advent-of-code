@@ -25,8 +25,7 @@ let puzzle_1 input =
 ;;
 
 let%expect_test "puzzle 1 - example" =
-  let input = {| **REMOVED** |}
-  in
+  let input = Common.read_all "day2_example.txt" in
   puzzle_1 input |> Common.print_int;
   [%expect {| 1227775554 |}]
 ;;
@@ -66,8 +65,7 @@ let puzzle_2 input =
 ;;
 
 let%expect_test "puzzle 2 - example" =
-  let input = {| **REMOVED** |}
-  in
+  let input = Common.read_all "day2_example.txt" in
   puzzle_2 input |> Common.print_int;
   [%expect {| 4174379265 |}]
 ;;
