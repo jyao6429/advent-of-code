@@ -107,7 +107,9 @@ module Union_find = struct
     then (
       let smaller, larger = if n1.Node.size < n2.Node.size then n1, n2 else n2, n1 in
       smaller.Node.parent <- larger.Node.parent;
-      larger.Node.size <- larger.Node.size + smaller.Node.size)
+      larger.Node.size <- larger.Node.size + smaller.Node.size;
+      larger.Node.size)
+    else n1.Node.size
   ;;
 end
 
@@ -118,7 +120,7 @@ module Part_1 = struct
       List.range 0 num_connections
       |> List.fold ~init:edges ~f:(fun edges _ ->
         let min, edges = Set.min_elt_exn edges, Set.remove_index edges 0 in
-        Union_find.union uf min.Edge.v1 min.Edge.v2;
+        Union_find.union uf min.Edge.v1 min.Edge.v2 |> ignore;
         edges)
     in
     (* print_s
@@ -148,20 +150,27 @@ module Part_1 = struct
 end
 
 module Part_2 = struct
-  let solve input =
-    ignore input;
-    0
+  let solve (~edges, ~coords) =
+    let num_coords = List.length coords in
+    let uf = Union_find.create coords in
+    Set.fold_until
+      edges
+      ~init:()
+      ~f:(fun () min ->
+        let unioned_size = Union_find.union uf min.Edge.v1 min.Edge.v2 in
+        if unioned_size = num_coords then Stop (min.v1.x * min.v2.x) else Continue ())
+      ~finish:(fun _ -> failwith "impossible")
   ;;
 
   module%test [@name "part_2"] _ = struct
     let%expect_test "example" =
       solve example_input |> Common.print_int;
-      [%expect {| 0 |}]
+      [%expect {| 25272 |}]
     ;;
 
-    (* let%expect_test "prod" =
+    let%expect_test "prod" =
       solve prod_input |> Common.print_int;
-      [%expect {| 0 |}]
-    ;; *)
+      [%expect {| 59039696 |}]
+    ;;
   end
 end
