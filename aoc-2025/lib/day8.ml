@@ -96,12 +96,6 @@ module Union_find = struct
   ;;
 
   let union t c1 c2 =
-    (* print_s
-      [%message
-        "union"
-          (t : Coordinate.t Node.t Coordinate.Table.t)
-          (c1 : Coordinate.t)
-          (c2 : Coordinate.t)]; *)
     let n1, n2 = find_set t c1, find_set t c2 in
     if [%equal: Coordinate.t] n1.Node.parent n2.Node.parent |> not
     then (
@@ -123,9 +117,6 @@ module Part_1 = struct
         Union_find.union uf min.Edge.v1 min.Edge.v2 |> ignore;
         edges)
     in
-    (* print_s
-      [%message
-        (Hashtbl.to_alist uf : (Coordinate.t * Coordinate.t Union_find.Node.t) list)]; *)
     let circuit_sizes =
       Hashtbl.to_alist uf
       |> List.filter_map ~f:(fun (coord, node) ->
