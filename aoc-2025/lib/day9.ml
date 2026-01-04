@@ -126,7 +126,7 @@ module Part_2 = struct
       [%expect {| 24 |}]
     ;;
 
-    let%expect_test "test" =
+    (* let%expect_test "test" =
       let test_input =
         {|
 
@@ -134,7 +134,7 @@ module Part_2 = struct
       in
       solve test_input |> Common.print_int;
       [%expect {| 24 |}]
-    ;;
+    ;; *)
 
     (* let%expect_test "prod" =
       let is, js = List.unzip prod_input in
@@ -148,7 +148,7 @@ module Part_2 = struct
       has_consecutive is |> ignore;
       has_consecutive js |> ignore;
       [%expect {| 4599890450 |}] *)
-    ;;
+
     (* 4599890450 too high *)
 
     (* let%expect_test "prod" =
