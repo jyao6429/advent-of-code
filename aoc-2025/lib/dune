@@ -2,6 +2,6 @@
  (public_name aoc-2025)
  (name aoc_2025)
  (inline_tests)
- (libraries core parallel parallel.scheduler)
+ (libraries core parallel parallel.scheduler lp lp-glpk)
  (preprocess
   (pps ppx_jane ppx_inline_test)))

@@ -102,57 +102,25 @@ module Part_1 = struct
 end
 
 module Part_2 = struct
-  let rec brute_force_min_presses
-    (parallel @ local)
-    ~target_joltage
-    ~current_joltage
-    ~remaining_buttons
-    ~num_presses
-    =
-    if [%equal: int iarray] target_joltage current_joltage
-    then num_presses
-    else (
-      match remaining_buttons with
-      | [] -> Int.max_value
-      | button :: rest ->
-        let max_presses_for_button =
-          Set.to_list button
-          |> List.map ~f:(fun i -> target_joltage.:(i) - current_joltage.:(i))
-          |> List.min_elt ~compare
-          |> Option.value_exn
-          |> Int.clamp_exn ~min:0 ~max:Int.max_value
-        in
-        List.range ~stop:`inclusive 0 max_presses_for_button
-        |> Iarray.of_list
-        |> Parallel_arrays.Iarray.of_iarray
-        |> Parallel_arrays.Iarray.map parallel ~f:(fun parallel presses ->
-          let new_joltage =
-            Iarray.mapi current_joltage ~f:(fun i value ->
-              if Set.mem button i then value + presses else value)
-          in
-          brute_force_min_presses
-            parallel
-            ~target_joltage
-            ~current_joltage:new_joltage
-            ~remaining_buttons:rest
-            ~num_presses:(num_presses + presses) [@nontail])
-        |> Parallel_arrays.Iarray.to_iarray
-        |> Iarray.to_list
-        |> List.min_elt ~compare
-        |> Option.value_exn)
-  ;;
-
-  let find_min_presses
-    ((_, buttons, target_joltage) : bool list * Int.Set.t list * int iarray)
-    =
-    Common.run_in_parallel ~f:(fun parallel ->
-      brute_force_min_presses
-        parallel
-        ~target_joltage
-        ~current_joltage:
-          (Iarray.create 0 ~len:(Iarray.length target_joltage) ~mutate:ignore)
-        ~remaining_buttons:buttons
-        ~num_presses:0)
+  let find_min_presses (_, buttons, target_joltage) =
+    let equations = Array.init (Iarray.length target_joltage) ~f:(fun _ -> []) in
+    let vars =
+      List.mapi buttons ~f:(fun i button ->
+        let var = Lp.var ~integer:true ("i" ^ Int.to_string i) in
+        Set.iter button ~f:(fun idx -> equations.(idx) <- var :: equations.(idx));
+        var)
+    in
+    let sum = List.reduce vars ~f:Lp.( ++ ) |> Option.value_exn in
+    let constraints =
+      Array.to_list equations
+      |> List.mapi ~f:(fun i vars ->
+        let var_sum = List.reduce vars ~f:Lp.( ++ ) |> Option.value_exn in
+        Lp.( =~ ) var_sum (Lp.c (float_of_int target_joltage.:(i))))
+    in
+    let problem = Lp.make (Lp.minimize sum) constraints in
+    match Lp_glpk.solve ~term_output:false problem with
+    | Ok (obj, _) -> Int.of_float obj
+    | Error msg -> failwith msg
   ;;
 
   let solve (input : (bool list * Int.Set.t list * int iarray) list @ portable) =
@@ -165,9 +133,9 @@ module Part_2 = struct
       [%expect {| 33 |}]
     ;;
 
-    (* let%expect_test "prod" =
+    let%expect_test "prod" =
       solve prod_input |> Common.print_int;
-      [%expect {| 0 |}]
-    ;; *)
+      [%expect {| 18105 |}]
+    ;;
   end
 end
