@@ -103,6 +103,7 @@ end
 
 module Part_2 = struct
   let rec brute_force_min_presses
+    (parallel @ local)
     ~target_joltage
     ~current_joltage
     ~remaining_buttons
@@ -122,30 +123,42 @@ module Part_2 = struct
           |> Int.clamp_exn ~min:0 ~max:Int.max_value
         in
         List.range ~stop:`inclusive 0 max_presses_for_button
-        |> List.map ~f:(fun presses ->
+        |> Iarray.of_list
+        |> Parallel_arrays.Iarray.of_iarray
+        |> Parallel_arrays.Iarray.map' ~grain:1 parallel ~f:(fun parallel presses ->
           let new_joltage =
             Iarray.mapi current_joltage ~f:(fun i value ->
               if Set.mem button i then value + presses else value)
           in
           brute_force_min_presses
+            parallel
             ~target_joltage
             ~current_joltage:new_joltage
             ~remaining_buttons:rest
-            ~num_presses:(num_presses + presses))
+            ~num_presses:(num_presses + presses)
+            [@nontail])
+        |> Parallel_arrays.Iarray.to_iarray
+        |> Iarray.to_list
         |> List.min_elt ~compare
         |> Option.value_exn)
   ;;
 
-  let find_min_presses (_, buttons, target_joltage) =
-    brute_force_min_presses
-      ~target_joltage
-      ~current_joltage:
-        (Iarray.create 0 ~len:(Iarray.length target_joltage) ~mutate:ignore)
-      ~remaining_buttons:buttons
-      ~num_presses:0
+  let find_min_presses
+    ((_, buttons, target_joltage) : bool list * Int.Set.t list * int iarray)
+    =
+    Common.run_in_parallel ~f:(fun parallel ->
+      brute_force_min_presses
+        parallel
+        ~target_joltage
+        ~current_joltage:
+          (Iarray.create 0 ~len:(Iarray.length target_joltage) ~mutate:ignore)
+        ~remaining_buttons:buttons
+        ~num_presses:0)
   ;;
 
-  let solve input = List.sum (module Int) input ~f:find_min_presses
+  let solve (input : (bool list * Int.Set.t list * int iarray) list @ portable) =
+    List.sum (module Int) input ~f:find_min_presses
+  ;;
 
   module%test [@name "part_2"] _ = struct
     let%expect_test "example" =
@@ -153,9 +166,9 @@ module Part_2 = struct
       [%expect {| 33 |}]
     ;;
 
-    (* let%expect_test "prod" =
+    let%expect_test "prod" =
       solve prod_input |> Common.print_int;
       [%expect {| 0 |}]
-    ;; *)
+    ;;
   end
 end
