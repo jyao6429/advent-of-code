@@ -24,7 +24,7 @@ let process_buttons str_list =
 let process_joltage str =
   String.strip str ~drop:(fun c -> Char.equal c '{' || Char.equal c '}')
   |> String.split ~on:','
-  |> List.map ~f:Int.of_string
+  |> Iarray.of_list_map ~f:Int.of_string
 ;;
 
 let process_input input =
@@ -102,15 +102,55 @@ module Part_1 = struct
 end
 
 module Part_2 = struct
-  let solve input =
-    ignore input;
-    0
+  let rec brute_force_min_presses
+    ~target_joltage
+    ~current_joltage
+    ~remaining_buttons
+    ~num_presses
+    =
+    if [%equal: int iarray] target_joltage current_joltage
+    then num_presses
+    else (
+      match remaining_buttons with
+      | [] -> Int.max_value
+      | button :: rest ->
+        let max_presses_for_button =
+          Set.to_list button
+          |> List.map ~f:(fun i -> target_joltage.:(i) - current_joltage.:(i))
+          |> List.min_elt ~compare
+          |> Option.value_exn
+          |> Int.clamp_exn ~min:0 ~max:Int.max_value
+        in
+        List.range ~stop:`inclusive 0 max_presses_for_button
+        |> List.map ~f:(fun presses ->
+          let new_joltage =
+            Iarray.mapi current_joltage ~f:(fun i value ->
+              if Set.mem button i then value + presses else value)
+          in
+          brute_force_min_presses
+            ~target_joltage
+            ~current_joltage:new_joltage
+            ~remaining_buttons:rest
+            ~num_presses:(num_presses + presses))
+        |> List.min_elt ~compare
+        |> Option.value_exn)
   ;;
+
+  let find_min_presses (_, buttons, target_joltage) =
+    brute_force_min_presses
+      ~target_joltage
+      ~current_joltage:
+        (Iarray.create 0 ~len:(Iarray.length target_joltage) ~mutate:ignore)
+      ~remaining_buttons:buttons
+      ~num_presses:0
+  ;;
+
+  let solve input = List.sum (module Int) input ~f:find_min_presses
 
   module%test [@name "part_2"] _ = struct
     let%expect_test "example" =
       solve example_input |> Common.print_int;
-      [%expect {| 0 |}]
+      [%expect {| 33 |}]
     ;;
 
     (* let%expect_test "prod" =
