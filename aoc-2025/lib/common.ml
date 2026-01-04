@@ -8,7 +8,7 @@ let print_int n = Int.to_string n |> print_endline
 let split_lines s = String.strip s |> String.split_lines
 
 let run_in_parallel ~(f : Parallel.t @ local -> 'a) : 'a =
-  let module Scheduler = Parallel_scheduler_work_stealing in
+  let module Scheduler = Parallel_scheduler in
   let scheduler = Scheduler.create () in
   let result = Scheduler.parallel scheduler ~f in
   Scheduler.stop scheduler;

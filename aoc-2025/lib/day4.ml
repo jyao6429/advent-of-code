@@ -116,14 +116,18 @@ module Part_2 = struct
     let grid = Parray.of_iarray grid in
     let step (grid : Cell.t iarray Parray.t) =
       let still_accessible =
-        Parray.mapi par grid ~f:(fun i row ->
+        Parray.mapi par grid ~f:(fun _ i row ->
           Iarray.fold_mapi ~init:0 row ~f:(fun j acc cell ->
             if check_adjacent grid cell ~i ~j then acc + 1, Cell.Empty else acc, cell))
       in
-      let new_grid = Parray.map par still_accessible ~f:snd in
+      let new_grid = Parray.map par still_accessible ~f:(fun _ -> snd) in
       let num_accessible =
-        Parray.map par still_accessible ~f:fst
-        |> Parray.fold par ~init:(fun () -> 0) ~f:( + ) ~combine:( + )
+        Parray.map par still_accessible ~f:(fun _ -> fst)
+        |> Parray.fold
+             par
+             ~init:(fun () -> 0)
+             ~f:(fun _ -> ( + ))
+             ~combine:(fun _ -> ( + ))
       in
       ~new_grid, ~num_accessible
     in

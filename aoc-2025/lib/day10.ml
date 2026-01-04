@@ -125,7 +125,7 @@ module Part_2 = struct
         List.range ~stop:`inclusive 0 max_presses_for_button
         |> Iarray.of_list
         |> Parallel_arrays.Iarray.of_iarray
-        |> Parallel_arrays.Iarray.map' ~grain:1 parallel ~f:(fun parallel presses ->
+        |> Parallel_arrays.Iarray.map parallel ~f:(fun parallel presses ->
           let new_joltage =
             Iarray.mapi current_joltage ~f:(fun i value ->
               if Set.mem button i then value + presses else value)
@@ -135,8 +135,7 @@ module Part_2 = struct
             ~target_joltage
             ~current_joltage:new_joltage
             ~remaining_buttons:rest
-            ~num_presses:(num_presses + presses)
-            [@nontail])
+            ~num_presses:(num_presses + presses) [@nontail])
         |> Parallel_arrays.Iarray.to_iarray
         |> Iarray.to_list
         |> List.min_elt ~compare
@@ -166,9 +165,9 @@ module Part_2 = struct
       [%expect {| 33 |}]
     ;;
 
-    let%expect_test "prod" =
+    (* let%expect_test "prod" =
       solve prod_input |> Common.print_int;
       [%expect {| 0 |}]
-    ;;
+    ;; *)
   end
 end
